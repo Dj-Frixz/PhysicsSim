@@ -59,12 +59,13 @@ class SpaceRocks:
         escaped = set()
         for obj in OBJECTS:
             if obj.position.length()>limit:
-                escaped.add()
+                escaped.add(obj)
             else:
                 obj.apply_forces()
         OBJECTS.difference_update(escaped)
         for obj in OBJECTS:
             obj.move(self.screen)
+        print(OBJECTS)
 
     def _draw(self):
         self.screen.blit(self.background, (0, 0))
