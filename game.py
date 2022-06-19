@@ -10,9 +10,9 @@ SETTINGS = False
 class SpaceRocks:
     def __init__(self):
         self._init_pygame()
-        self.screen_width = 1920
-        self.screen_height = 1080
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.screen = pygame.display.set_mode(flags=pygame.FULLSCREEN)
+        self.screen_width, self.screen_height = pygame.display.get_window_size()
+        pygame.display.toggle_fullscreen()
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
         font = pygame.font.SysFont('monospace',20)
