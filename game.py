@@ -4,24 +4,20 @@ from sys import exit
 from models import MainCharacter
 from actions import *
 from utils import load_sprite
-
-SETTINGS = False
+from settings import Settings
 
 class SpaceRocks:
     def __init__(self):
-        self._init_pygame()
-        self.screen = pygame.display.set_mode(flags=pygame.FULLSCREEN)
+        self.screen = self._init_pygame()
         self.screen_width, self.screen_height = pygame.display.get_window_size()
-        pygame.display.toggle_fullscreen()
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
         font = pygame.font.SysFont('monospace',20)
-        self.mex = font.render("v2.0",True,(255,255,255))
-        self.mexpos = (0,0)#self.screen.get_width()-font.size('')[0]*2,1000)
+        self.mex = font.render("v2.1",True,(255,255,255))
+        self.mexpos = (0,0)
         self.clock = pygame.time.Clock()
         self.main_character = MainCharacter((int(self.screen_width / 2), int(self.screen_height / 2)))
-        #self.settings = pygame.transform.smoothscale(load_sprite('settings.png'),(60,60))
-        self.settings = font.render('"settings"',True,(255,255,255))
+        self.settings = Settings()
 
     def main_loop(self):
         while True:
@@ -32,6 +28,7 @@ class SpaceRocks:
     def _init_pygame(self):
         pygame.init()
         pygame.display.set_caption("BRUH")
+        return pygame.display.set_mode(flags=pygame.FULLSCREEN)
 
     def _handle_input(self):
         for event in pygame.event.get():
@@ -40,10 +37,9 @@ class SpaceRocks:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    spawn(self.screen_height,event.pos)
-                elif event.button == 1 and self.settings.get_rect(left=1780,top=15).collidepoint(event.pos):
-                    global SETTINGS
-                    SETTINGS = SETTINGS == False
+                    spawn(self.screen_height,event.pos,self.settings.buttons['movement'].status,self.settings.buttons['funny'].status)
+                elif event.button == 1:
+                    self.settings.handle_input(event.pos)
 
         is_key_pressed = pygame.key.get_pressed()
 
@@ -64,19 +60,15 @@ class SpaceRocks:
                 obj.apply_forces()
         OBJECTS.difference_update(escaped)
         for obj in OBJECTS:
-            obj.move(self.screen)
-        print(OBJECTS)
+            obj.move(self.screen,self.settings.buttons['wrapper'].status)
 
     def _draw(self):
         self.screen.blit(self.background, (0, 0))
         self.screen.blit(self.mex,self.mexpos)
+        self.settings.draw(self.screen)
 
         for obj in OBJECTS:
             obj.draw(self.screen)
-        
-        self.screen.blit(self.settings, (1780,15))
-        if SETTINGS:
-            settings(self.screen)
         
         pygame.display.flip()
         self.clock.tick(60)

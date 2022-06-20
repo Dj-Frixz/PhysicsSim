@@ -5,7 +5,6 @@ from pygame.transform import scale,smoothscale, rotozoom
 from utils import load_sprite, load_sound
 
 UP = Vector2(0, -1)
-WRAPPER = False
 #GRAVITY = {'direction': Vector2(0, 1), 'acceleration': 0.2}
 OBJECTS = set()
 
@@ -17,7 +16,10 @@ class StaticObject:
         self.sprite = sprite
         self.radius = sprite.get_width() / 2
 
-    def move(self, bruh):
+    def move(*args):
+        pass
+
+    def apply_forces(*args):
         pass
 
     def draw(self, surface):
@@ -42,9 +44,9 @@ class Object(StaticObject):
                 force *= obj.mass/(radius**2)
                 self.velocity += force*time
 
-    def move(self,surface):
-        if WRAPPER: self.window_border_collision(surface)
-        self.position += self.velocity
+    def move(self,surface,wrapper:bool):
+        if wrapper: self.window_border_collision(surface)
+        else: self.position += self.velocity
 
     def collides_with(self, other_obj):
         distance = self.position.distance_to(other_obj.position)

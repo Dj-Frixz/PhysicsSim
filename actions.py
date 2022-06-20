@@ -1,18 +1,25 @@
 from models import *
 from utils import load_sprite
-from pygame import display
 
-def spawn(screen,pos):
+def spawn(screen,pos,movable,fun):
+    SPHERE = load_sprite("enemy.png")
+    ENEMY = load_sprite("sphere.svg")
     diameter = screen/10
-    OBJECTS.add(
-        Object(
-            position = pos,
-            sprite = scale(load_sprite("sphere.svg"),(diameter,diameter)),
-            mass = 2000)
-        )
-
-def wrap():
-    WRAPPER = WRAPPER and FALSE
+    sprite = scale(SPHERE,(diameter,diameter)) if fun else smoothscale(ENEMY,(diameter,diameter))
+    if movable:
+        OBJECTS.add(
+            Object(
+                position = pos,
+                sprite = sprite,
+                mass = 2000)
+            )
+    else:
+        OBJECTS.add(
+            StaticObject(
+                position = pos,
+                sprite = sprite,
+                mass = 2000)
+            )
 
 def settings(screen):
     square = load_sprite('square.png')
