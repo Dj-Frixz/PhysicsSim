@@ -12,12 +12,12 @@ class SpaceRocks:
         self.screen_width, self.screen_height = pygame.display.get_window_size()
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
-        font = pygame.font.SysFont('monospace',20)
-        self.mex = font.render("v2.1",True,(255,255,255))
+        self.font = pygame.font.SysFont('monospace',20)
+        self.mex = self.font.render("v2.1",True,(255,255,255))
         self.mexpos = (0,0)
         self.clock = pygame.time.Clock()
         self.main_character = MainCharacter((int(self.screen_width / 2), int(self.screen_height / 2)))
-        self.settings = Settings()
+        self.settings = Settings(self.screen)
 
     def main_loop(self):
         while True:
@@ -63,9 +63,12 @@ class SpaceRocks:
             obj.move(self.screen,self.settings.buttons['wrapper'].status)
 
     def _draw(self):
-        self.screen.blit(self.background, (0, 0))
+        if not self.settings.buttons['megafun'].status:
+            self.screen.blit(self.background, (0, 0))
         self.screen.blit(self.mex,self.mexpos)
         self.settings.draw(self.screen)
+        if self.settings.buttons['info'].status:
+            self.screen.blit(self.font.render(str(len(OBJECTS))+str(OBJECTS),True,(255,255,255)),(0,200))
 
         for obj in OBJECTS:
             obj.draw(self.screen)
