@@ -17,10 +17,10 @@ class Settings:
         self.rect = self.img.get_rect(topleft=self.pos)
         check = load_sprite('check.png')
         self.buttons = {
-            'wrapper': Settings._Selection(self.FONT.render('wrapper',True,(255,255,255)), check, (0,964,0.926)),
-            'movement': Settings._Selection(self.FONT.render('movement',True,(255,255,255)), check, (0.521,0.926)),
+            'wrapper': Settings._Selection(self.FONT.render('wrapper',True,(255,255,255)), check, (0.94,0.926)),
+            'movement': Settings._Selection(self.FONT.render('movement',True,(255,255,255)), check, (0.5,0.926)),
             'clear': Settings._Button(self.FONT.render('clear',True,(255,255,255)), (0.052,0.926), OBJECTS.clear),
-            'funny': Settings._Selection(self.FONT.render('fun',True,(255,255,255)), check, (0.521,0.463)),
+            'funny': Settings._Selection(self.FONT.render('fun',True,(255,255,255)), check, (0.5,0.463)),
             'megafun': Settings._Selection(self.FONT.render('megafun',True,(255,255,255)), check, (0.26,0.463)),
             'info': Settings._Selection(self.FONT.render('info',True,(255,255,255)), check, (0.74,0.463))
         }
