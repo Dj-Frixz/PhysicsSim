@@ -1,6 +1,6 @@
 from pickle import FALSE
 from pygame.math import Vector2
-from pygame.transform import scale,smoothscale, rotozoom
+from pygame.transform import smoothscale, rotozoom
 
 from utils import load_sprite, load_sound
 

@@ -1,7 +1,4 @@
 __pycache__
 build
 __main__.spec
-include
-pygame
-pygame-2.1.2.dist-info
 compile.bat

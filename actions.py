@@ -1,5 +1,6 @@
 from models import *
 from utils import load_sprite
+from pygame.transform import scale
 
 def spawn(screen,pos,movable,fun):
     SPHERE = load_sprite("enemy.png")
