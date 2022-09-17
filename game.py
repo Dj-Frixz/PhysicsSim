@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
 
-from models import MainCharacter
+from models import *
 from actions import *
 from utils import load_sprite
 from settings import Settings
@@ -18,12 +18,32 @@ class SpaceRocks:
         self.clock = pygame.time.Clock()
         self.main_character = MainCharacter((int(self.screen_width / 2), int(self.screen_height / 2)))
         self.settings = Settings(self.screen)
+        self.SPHERE = load_sprite("sphere.svg")
+        self.ENEMY = load_sprite("enemy.png")
 
     def main_loop(self):
         while True:
             self._handle_input()
             self._process_game_logic_()
             self._draw()
+    
+    def spawn(self,pos,movable,fun):
+        diameter = self.screen_height/10
+        sprite = pygame.transform.smoothscale(self.ENEMY,(diameter,diameter)) if fun else pygame.transform.scale(self.SPHERE,(diameter,diameter))
+        if movable:
+            OBJECTS.add(
+                Object(
+                    position = pos,
+                    sprite = sprite,
+                    mass = 2000)
+                )
+        else:
+            OBJECTS.add(
+                StaticObject(
+                    position = pos,
+                    sprite = sprite,
+                    mass = 2000)
+                )
 
     def _init_pygame(self):
         pygame.init()
@@ -37,7 +57,7 @@ class SpaceRocks:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    spawn(self.screen_height,event.pos,self.settings.buttons['movement'].status,self.settings.buttons['funny'].status)
+                    self.spawn(event.pos,self.settings.buttons['movement'].status,self.settings.buttons['funny'].status)
                 elif event.button == 1:
                     self.settings.handle_input(event.pos)
 
