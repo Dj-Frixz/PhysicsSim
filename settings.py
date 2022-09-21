@@ -28,7 +28,7 @@ class Settings:
             'trails': Settings._Selection(load_sprite('trails.png'), check),
             'info': Settings._Selection(load_sprite('info.png'), check),
             'bounce': Settings._Selection(load_sprite('bounce.png'), check),
-            'sound': Settings._Button(load_sprite('sound.png'), space_class.toggle_sound),
+            'sound': Settings._Selection(load_sprite('sound.png'), check, space_class.toggle_sound),
             'friction': Settings._Selection(load_sprite('friction.png'), check)
         }
         N = len(self.buttons)
@@ -78,7 +78,7 @@ class Settings:
             screen.blit(self.sprite, self.pos)
     
     class _Selection(__Interactive):
-        def __init__(self, base: pygame.Surface, check: pygame.Surface, status: bool = False, action = None):
+        def __init__(self, base: pygame.Surface, check: pygame.Surface, action = None, status: bool = False):
             super().__init__(base)
             self.check = check                                          # Surface for the checkmark
             self.checkpos = (0,0)
