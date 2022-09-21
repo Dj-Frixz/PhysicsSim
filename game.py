@@ -13,12 +13,14 @@ class SpaceRocks:
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
         self.font = pygame.font.SysFont('monospace',20)
-        self.mex = self.font.render("v2.1",True,(255,255,255))
-        self.mexpos = (0,0)
+        self.version = self.font.render("v2.1",True,(255,255,255))
+        self.hint = self.font.render("Right click to spawn something",True,(255,255,255))
         self.clock = pygame.time.Clock()
-        self.main_character = MainCharacter((int(self.screen_width / 2), int(self.screen_height / 2)))
-        self.settings = Settings(self.screen)
-        self.SPHERE = load_sprite("sphere.svg")
+        self.main_character = MainCharacter((int(self.screen_width/2), int(self.screen_height/2)))
+        self.last = self.main_character
+        self.count = 1
+        self.settings = Settings(self.screen, self)
+        self.SPHERE = load_sprite("sphere.png")
         self.ENEMY = load_sprite("enemy.png")
 
     def main_loop(self):
@@ -29,25 +31,41 @@ class SpaceRocks:
     
     def spawn(self,pos,movable,fun):
         diameter = self.screen_height/10
-        sprite = pygame.transform.smoothscale(self.ENEMY,(diameter,diameter)) if fun else pygame.transform.scale(self.SPHERE,(diameter,diameter))
-        if movable:
-            OBJECTS.add(
-                Object(
-                    position = pos,
-                    sprite = sprite,
-                    mass = 2000)
-                )
-        else:
-            OBJECTS.add(
-                StaticObject(
-                    position = pos,
-                    sprite = sprite,
-                    mass = 2000)
-                )
+        sprite = pygame.transform.smoothscale(self.ENEMY,(diameter,diameter)) if fun else self.SPHERE  # pygame.transform.scale(self.SPHERE,(diameter,diameter))
+        Obj = Object if movable else StaticObject
+        self.last.next = Obj(
+            position = pos,
+            sprite = sprite,
+            mass = 2000)
+        self.last = self.last.next
+        self.count += 1
+
+    def clear(self):
+        self.main_character.next = None
+        self.main_character.enabled = False
+        self.last = self.main_character
+        self.count = 0
+    
+    def reset(self):
+        self.main_character.next = None
+        self.main_character.position = Vector2(int(self.screen_width/2), int(self.screen_height/2))
+        self.main_character.velocity = Vector2(0,0)
+        self.main_character.direction = Vector2(0,-1)
+        self.main_character.enabled = True
+        self.last = self.main_character
+        self.count = 1
+
+    def toggle_sound(self):
+        Object.sound = Object.sound == False
+
+    def _delete_next(self,obj):
+        obj.next = obj.next.next
+        if obj.next is None:
+            self.last = obj
 
     def _init_pygame(self):
         pygame.init()
-        pygame.display.set_caption("BRUH")
+        pygame.display.set_caption("PhysicsSim")
         return pygame.display.set_mode(flags=pygame.FULLSCREEN)
 
     def _handle_input(self):
@@ -72,26 +90,40 @@ class SpaceRocks:
 
     def _process_game_logic_(self):
         limit = pygame.Vector2(2*self.screen_height,2*self.screen_width).length()
-        escaped = set()
-        for obj in OBJECTS:
-            if obj.position.length()>limit:
-                escaped.add(obj)
+        if self.main_character.enabled and self.main_character.position.length()<limit:
+            self.main_character.apply_forces()
+        else:
+            self.main_character.enabled = False
+        obj = self.main_character
+        while obj.next is not None:
+            if obj.next.position.length()>limit:
+                self._delete_next(obj)
+                if obj.next is None: break
             else:
-                obj.apply_forces()
-        OBJECTS.difference_update(escaped)
-        for obj in OBJECTS:
+                obj.next.apply_forces()
+            obj = obj.next
+        # if self.settings.buttons['sound'].status
+        
+        obj = self.main_character if self.main_character.enabled else self.main_character.next
+        while obj is not None:
             obj.move(self.screen,self.settings.buttons['wrapper'].status)
+            obj = obj.next
 
     def _draw(self):
-        if not self.settings.buttons['megafun'].status:
-            self.screen.blit(self.background, (0, 0))
-        self.screen.blit(self.mex,self.mexpos)
+        if not self.settings.buttons['trails'].status:
+            self.screen.blit(self.background, (0,0))
+        self.screen.blit(self.version, (0,0))
+        self.screen.blit(self.hint, (500,950))
         self.settings.draw(self.screen)
         if self.settings.buttons['info'].status:
-            self.screen.blit(self.font.render(str(len(OBJECTS))+str(OBJECTS),True,(255,255,255)),(0,200))
-
-        for obj in OBJECTS:
+            self.screen.blit(self.font.render(f'particles: {self.count}',True,(255,255,255)),(0,200))
+        
+        obj = self.main_character if self.main_character.enabled else self.main_character.next
+        while obj is not None:
             obj.draw(self.screen)
+            #obj.rect.center=obj.position
+            #pygame.draw.rect(self.screen, (255,255,255), obj.rect, 1)
+            obj = obj.next
         
         pygame.display.flip()
         self.clock.tick(60)
