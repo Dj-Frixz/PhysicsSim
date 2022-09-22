@@ -6,10 +6,12 @@ from utils import load_sprite, load_sound
 
 UP = Vector2(0, -1)
 C = 299792458
-#GRAVITY = {'direction': Vector2(0, 1), 'acceleration': 0.2}
+# G = 6.6743e-11
+# GRAVITY = {'direction': Vector2(0, 1), 'acceleration': 0.2}
 
 class StaticObject:
     sound = False
+    scale = 1
 
     def __init__(self, position, sprite, mass=0, velocity=Vector2()) -> None:
         self.next = None
@@ -33,8 +35,8 @@ class StaticObject:
             if radius!=0:
                 # velocity = acceleration*time = Force*time/mass
                 force = direction.normalize()*time/(radius**2)
-                self.velocity += force*obj.mass
-                obj.velocity += -force*self.mass
+                self.velocity += force*obj.mass - force*(obj.mass**2)/(radius**2)
+                obj.velocity += -force*self.mass + force*(self.mass**2)/(radius**2)
             obj = obj.next
 
     def draw(self, surface):
@@ -59,7 +61,7 @@ class Object(StaticObject):
 
     def move(self,surface,wrapper:bool, time=1/60):
         if wrapper: self.window_border_collision(surface, time)
-        else: self.position += self.velocity*time
+        else: self.position += self.velocity*time*self.scale
         self.kinetic_energy = 0.5*self.mass*(self.velocity*self.velocity)
 
     def collides_with(self, other_obj):

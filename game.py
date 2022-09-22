@@ -10,6 +10,7 @@ class SpaceRocks:
     def __init__(self):
         self.screen = self._init_pygame()
         self.screen_width, self.screen_height = pygame.display.get_window_size()
+        StaticObject.scale = self.screen_height/1080
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
         self.font = pygame.font.SysFont('monospace',20)
@@ -62,11 +63,12 @@ class SpaceRocks:
         obj.next = obj.next.next
         if obj.next is None:
             self.last = obj
+        self.count -= 1
 
     def _init_pygame(self):
         pygame.init()
         pygame.display.set_caption("PhysicsSim")
-        return pygame.display.set_mode(flags=pygame.FULLSCREEN)
+        return pygame.display.set_mode(flags= pygame.FULLSCREEN)
 
     def _handle_input(self):
         for event in pygame.event.get():
@@ -116,7 +118,7 @@ class SpaceRocks:
         self.screen.blit(self.hint, (500,950))
         self.settings.draw(self.screen)
         if self.settings.buttons['info'].status:
-            self.screen.blit(self.font.render(f'particles: {self.count}',True,(255,255,255)),(0,200))
+            self.screen.blit(self.font.render(f'particles: {self.count}, res: {self.screen.get_size()}',True,(255,255,255)),(0,200))
         
         obj = self.main_character if self.main_character.enabled else self.main_character.next
         while obj is not None:
