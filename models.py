@@ -33,8 +33,8 @@ class StaticObject:
             if radius!=0:
                 # velocity = acceleration*time = Force*time/mass
                 force = direction.normalize()*time/(radius**2)
-                self.velocity += force*obj.mass
-                obj.velocity += -force*self.mass
+                self.velocity += force*obj.mass - force*(obj.mass**2)/(radius**2)
+                obj.velocity += -force*self.mass + force*(self.mass**2)/(radius**2)
             obj = obj.next
 
     def draw(self, surface):
