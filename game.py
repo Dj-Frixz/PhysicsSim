@@ -2,7 +2,6 @@ import pygame
 from sys import exit
 
 from models import *
-from actions import *
 from utils import load_sprite
 from settings import Settings
 
@@ -22,7 +21,7 @@ class SpaceRocks:
         self.count = 1
         self.settings = Settings(self.screen, self)
         self.SPHERE = load_sprite("sphere.png")
-        self.ENEMY = load_sprite("enemy.png")
+#       self.ENEMY = load_sprite("enemy.png")
 
     def main_loop(self):
         while True:
@@ -30,9 +29,10 @@ class SpaceRocks:
             self._process_game_logic_()
             self._draw()
     
-    def spawn(self,pos,movable,fun):
-        diameter = self.screen_height/10
-        sprite = pygame.transform.smoothscale(self.ENEMY,(diameter,diameter)) if fun else self.SPHERE  # pygame.transform.scale(self.SPHERE,(diameter,diameter))
+    def spawn(self,pos,movable): # ,fun):
+        '''Spawns a single particle'''
+        # diameter = self.screen_height/10
+        sprite =  self.SPHERE # if not fun else pygame.transform.smoothscale(self.ENEMY,(diameter,diameter))
         Obj = Object if movable else StaticObject
         self.last.next = Obj(
             position = pos,
@@ -42,12 +42,14 @@ class SpaceRocks:
         self.count += 1
 
     def clear(self):
+        '''Clears every object on the screen'''
         self.main_character.next = None
         self.main_character.enabled = False
         self.last = self.main_character
         self.count = 0
     
     def reset(self):
+        '''Resets to the starting position'''
         self.main_character.next = None
         self.main_character.position = Vector2(int(self.screen_width/2), int(self.screen_height/2))
         self.main_character.velocity = Vector2(0,0)
@@ -57,6 +59,7 @@ class SpaceRocks:
         self.count = 1
 
     def toggle_sound(self):
+        '''Switch sound on/off'''
         Object.sound = Object.sound == False
 
     def _delete_next(self,obj):
@@ -77,7 +80,7 @@ class SpaceRocks:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    self.spawn(event.pos,self.settings.buttons['movement'].status,self.settings.buttons['funny'].status)
+                    self.spawn(event.pos,self.settings.buttons['movement'].status) # ,self.settings.buttons['funny'].status)
                 elif event.button == 1:
                     self.settings.handle_input(event.pos)
 

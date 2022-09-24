@@ -12,12 +12,13 @@ class Settings:
     FONT = pygame.font.SysFont('monospace',20)
 
     def __init__(self,screen,space_class):
-        Settings.width,Settings.height = screen.get_width(),screen.get_height()
+        self.width,self.height = screen.get_width(),screen.get_height()
         self.top = space_class.main_character
-        self.pos = (int(0.927*self.width),int(0.0139*self.height))
+        # self.pos = (int(0.927*self.width),int(0.0139*self.height))
         self.active = False
-        self.img = self.FONT.render('"settings"',True,(255,255,255))
-        self.rect = self.img.get_rect(topleft=self.pos)
+        self.img = load_sprite('settings.png') # self.FONT.render('"settings"',True,(255,255,255))
+        self.rect = self.img.get_rect(topright=(self.width,0))
+        self.pos = self.rect.topleft
         check = load_sprite('check.png')
         self.buttons = {
             'wrapper': Settings._Selection(load_sprite('wrapper.png'), check),
@@ -30,6 +31,7 @@ class Settings:
             'bounce': Settings._Selection(load_sprite('bounce.png'), check),
             'sound': Settings._Selection(load_sprite('sound.png'), check, space_class.toggle_sound),
             'friction': Settings._Selection(load_sprite('friction.png'), check)
+#           'fullscreen': Settings._Button(self.FONT.render('fullscreeeen',True,(255,255,255)), lambda:pygame.display.toggle_fullscreen())
         }
         N = len(self.buttons)
         self.X = np.random.randint(1,8)
