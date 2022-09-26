@@ -30,45 +30,6 @@ class SpaceRocks:
             self._process_game_logic_()
             self._draw()
     
-    def spawn(self,pos,movable): # ,fun):
-        '''Spawns a single particle'''
-        # diameter = self.screen_height/10
-        sprite =  self.SPHERE # if not fun else pygame.transform.smoothscale(self.ENEMY,(diameter,diameter))
-        Obj = Object if movable else StaticObject
-        self.last.next = Obj(
-            position = pos,
-            sprite = sprite,
-            mass = 2000)
-        self.last = self.last.next
-        self.count += 1
-
-    def clear(self):
-        '''Clears every object on the screen'''
-        self.main_character.next = None
-        self.main_character.enabled = False
-        self.last = self.main_character
-        self.count = 0
-    
-    def reset(self):
-        '''Resets to the starting position'''
-        self.main_character.next = None
-        self.main_character.position = Vector2(int(self.screen_width/2), int(self.screen_height/2))
-        self.main_character.velocity = Vector2(0,0)
-        self.main_character.direction = Vector2(0,-1)
-        self.main_character.enabled = True
-        self.last = self.main_character
-        self.count = 1
-
-    def toggle_sound(self):
-        '''Switch sound on/off'''
-        Object.sound = Object.sound == False
-
-    def _delete_next(self,obj):
-        obj.next = obj.next.next
-        if obj.next is None:
-            self.last = obj
-        self.count -= 1
-
     def _init_pygame(self):
         pygame.init()
         pygame.display.set_caption("PhysicsSim")
@@ -133,3 +94,42 @@ class SpaceRocks:
         
         pygame.display.flip()
         self.clock.tick(60)
+
+    def _delete_next(self,obj):
+        obj.next = obj.next.next
+        if obj.next is None:
+            self.last = obj
+        self.count -= 1
+
+    def spawn(self,pos,movable): # ,fun):
+        '''Spawns a single particle'''
+        # diameter = self.screen_height/10
+        sprite =  self.SPHERE # if not fun else pygame.transform.smoothscale(self.ENEMY,(diameter,diameter))
+        Obj = Object if movable else StaticObject
+        self.last.next = Obj(
+            position = pos,
+            sprite = sprite,
+            mass = 2000)
+        self.last = self.last.next
+        self.count += 1
+
+    def toggle_sound(self):
+        '''Switch sound on/off'''
+        Object.sound = Object.sound == False
+
+    def clear(self):
+        '''Clears every object on the screen'''
+        self.main_character.next = None
+        self.main_character.enabled = False
+        self.last = self.main_character
+        self.count = 0
+    
+    def reset(self):
+        '''Resets to the starting position'''
+        self.main_character.next = None
+        self.main_character.position = Vector2(int(self.screen_width/2), int(self.screen_height/2))
+        self.main_character.velocity = Vector2(0,0)
+        self.main_character.direction = Vector2(0,-1)
+        self.main_character.enabled = True
+        self.last = self.main_character
+        self.count = 1
