@@ -1,5 +1,6 @@
+import sys
+sys.path.append('lib')
 import pygame
-from sys import exit
 
 from models import *
 from utils import load_sprite
@@ -77,7 +78,7 @@ class SpaceRocks:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
-                exit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
                     self.spawn(event.pos,self.settings.buttons['movement'].status) # ,self.settings.buttons['funny'].status)
