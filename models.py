@@ -48,7 +48,7 @@ class Object(StaticObject):
     bounce = False
 
     def __init__(self, position, sprite, mass=0, velocity=Vector2()):
-        self.boing = load_sound('boing.mp3')
+        self.boing = load_sound('boing')
 
         super().__init__(position, sprite, mass, velocity)
 
@@ -113,7 +113,7 @@ class MainCharacter(Object):
 
     def __init__(self, position):
         self.direction = Vector2(UP)
-        self.brum = load_sound('brum.wav')
+        self.brum = load_sound('brum')
         self.enabled = True
 
         super().__init__(

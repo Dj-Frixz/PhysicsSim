@@ -11,8 +11,8 @@ def resource_path(relative_path):
 
     return join(base_path, relative_path)
 
-def load_sprite(name, with_alpha=True, folder='sprites\\'):
-    path = resource_path(f"assets\{folder}{name}")
+def load_sprite(name, with_alpha=True, folder='sprites'):
+    path = resource_path(f"assets\{folder}\{name}")
     loaded_sprite = load(path)
 
     if with_alpha:
@@ -20,6 +20,6 @@ def load_sprite(name, with_alpha=True, folder='sprites\\'):
     else:
         return loaded_sprite.convert()
 
-def load_sound(name):
-    path = resource_path(f"assets\sounds\{name}")
+def load_sound(name, ext='mp3'):
+    path = resource_path(f"assets\sounds\{name}.{ext}")
     return Sound(path)
