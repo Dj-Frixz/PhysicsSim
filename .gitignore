@@ -5,3 +5,4 @@ __main__.spec
 compile.bat
 assets/sprites/settings2.png
 assets/sprites/enemy.png
+.vscode
