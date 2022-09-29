@@ -1,6 +1,7 @@
 from pickle import FALSE
 from pygame.math import Vector2
 from pygame.transform import smoothscale, rotozoom
+from pygame.draw import circle
 
 from utils import load_sprite, load_sound
 
@@ -13,13 +14,14 @@ class StaticObject:
     sound = False
     scale = 1
 
-    def __init__(self, position, sprite, mass=0, velocity=Vector2()) -> None:
+    def __init__(self, position, radius, mass=0, velocity=Vector2()) -> None:
         self.next = None
         self.position = Vector2(position)
         self.mass = mass
-        self.sprite = sprite
-        self.rect = sprite.get_bounding_rect()
-        self.radius = self.rect.width / 2
+        # self.sprite = sprite
+        self.color = (255,0,0)
+        # self.rect = sprite.get_bounding_rect()
+        self.radius = radius  # self.rect.width / 2
         self.velocity = Vector2(velocity)
         self.inertial_energy = mass*(C**2)
         self.kinetic_energy =  0.5*mass*(velocity*velocity)
@@ -39,18 +41,19 @@ class StaticObject:
                 obj.velocity += -force*self.mass + force*(self.mass**2)/(radius**2)
             obj = obj.next
 
-    def draw(self, surface):
-        blit_position = self.position - Vector2(self.radius)
-        surface.blit(self.sprite, blit_position)
+    def draw(self, screen):
+        # blit_position = self.position - Vector2(self.radius)
+        # screen.blit(self.sprite, blit_position)
+        circle(screen, self.color, self.position, self.radius)
 
 class Object(StaticObject):
     ELASTICITY = 0.9
     bounce = False
 
-    def __init__(self, position, sprite, mass=0, velocity=Vector2()):
+    def __init__(self, position, radius, mass=0, velocity=Vector2()):
         self.boing = load_sound('boing')
 
-        super().__init__(position, sprite, mass, velocity)
+        super().__init__(position, radius, mass, velocity)
 
     def gravity(self,obj,force):
         '''Gravitational_force  = G*mass*mass2/radius^2'''
@@ -113,15 +116,16 @@ class MainCharacter(Object):
 
     def __init__(self, position):
         self.direction = Vector2(UP)
+        self.sprite = smoothscale(
+                load_sprite("main_character.png"),
+                (int(1/5*position[0]), int(1/5*position[0]))
+            )
         self.brum = load_sound('brum')
         self.enabled = True
 
         super().__init__(
             position,
-            smoothscale(
-                load_sprite("main_character.png"),
-                (int(1/5*position[0]), int(1/5*position[0]))
-            ),
+            radius=0,
             mass=5
         )
     

@@ -7,8 +7,8 @@ pygame.font.init()
 from utils import load_sprite
 
 class Settings:
-    width = 0
-    height = 0
+    '''This is a class to create an interface for the settings'''
+
     FONT = pygame.font.SysFont('monospace',20)
     writing = False
 
@@ -22,7 +22,7 @@ class Settings:
         self.pos = self.rect.topleft
         check = load_sprite('check.png')
         self.buttons = {
-            'wrapper': Settings._Selection(load_sprite('wrapper.png'), check),
+            'wrapper': Settings._Selection(load_sprite('wrapper.png'), check), #, space_class.toggle_wrapper),
             'movement': Settings._Selection(load_sprite('movement.png'), check),
             'clear': Settings._Button(load_sprite('clear.png'), space_class.clear),
             'reset': Settings._Button(load_sprite('reset.png'), space_class.reset),
