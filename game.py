@@ -1,3 +1,4 @@
+from math import sqrt
 import sys
 sys.path.append('lib')
 import pygame
@@ -13,15 +14,16 @@ class SpaceRocks:
         StaticObject.scale = self.screen_height/1080
         pygame.display.set_icon( load_sprite("icon.ico", False))
         self.background = load_sprite("space.jpg", False)
-        self.font = pygame.font.SysFont('monospace',20)
-        self.version = self.font.render("v2.1",True,(255,255,255))
-        self.hint = self.font.render("Right click to spawn something",True,(255,255,255))
+        self.FONT = pygame.font.SysFont('monospace',int(20*(self.screen_height/1080)))
+        self.version = self.FONT.render("v2.1",True,(255,255,255))
+        self.hint = self.FONT.render("Right click to spawn something, scroll to change mass",True,(255,255,255))
         self.clock = pygame.time.Clock()
         self.main_character = MainCharacter((int(self.screen_width/2), int(self.screen_height/2)))
         self.last = self.main_character
         self.count = 1
+        self.selected_mass = 2000
         self.settings = Settings(self.screen, self)
-        self.SPHERE = load_sprite("sphere.png")
+#       self.SPHERE = load_sprite("sphere.png")
 #       self.ENEMY = load_sprite("enemy.png")
 
     def main_loop(self):
@@ -31,6 +33,7 @@ class SpaceRocks:
             self._draw()
     
     def _init_pygame(self):
+        '''Initialization of the Pygame module'''
         pygame.init()
         pygame.display.set_caption("PhysicsSim")
         return pygame.display.set_mode(flags= pygame.FULLSCREEN)
@@ -41,10 +44,12 @@ class SpaceRocks:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3:
+                if event.button == 3: # right click
                     self.spawn(event.pos,self.settings.buttons['movement'].status) # ,self.settings.buttons['funny'].status)
-                elif event.button == 1:
+                elif event.button == 1: # left click
                     self.settings.handle_input(event.pos)
+            if event.type == pygame.MOUSEWHEEL:
+                self.change_mass(event.y)
 
         is_key_pressed = pygame.key.get_pressed()
 
@@ -77,19 +82,27 @@ class SpaceRocks:
             obj = obj.next
 
     def _draw(self):
+        '''Displays the objects on the screen'''
         if not self.settings.buttons['trails'].status:
             self.screen.blit(self.background, (0,0))
         self.screen.blit(self.version, (0,0))
-        self.screen.blit(self.hint, (500,950))
+        self.screen.blit(self.hint, (0.26*self.screen_width,0.93*self.screen_height))
         self.settings.draw(self.screen)
         if self.settings.buttons['info'].status:
-            self.screen.blit(self.font.render(f'particles: {self.count}, res: {self.screen.get_size()}',True,(255,255,255)),(0,200))
-        
+            self.screen.blit(
+                self.FONT.render(f'particles: {self.count}, res: {self.screen_width,self.screen_height}',True,(255,255,255)),
+                (0, 0.19*self.screen_height))
+        self.screen.blit(
+            self.FONT.render('mass: %i'%(self.selected_mass),True,(255,255,255)), 
+            (0.7*self.screen_width,0.04*self.screen_height)
+        )
+
         obj = self.main_character if self.main_character.enabled else self.main_character.next
         while obj is not None:
             obj.draw(self.screen)
-            #obj.rect.center=obj.position
-            #pygame.draw.rect(self.screen, (255,255,255), obj.rect, 1)
+            # TESTING STUFF
+            # obj.rect.center=obj.position
+            # pygame.draw.rect(self.screen, (255,255,255), obj.rect, 1)
             obj = obj.next
         
         pygame.display.flip()
@@ -108,10 +121,13 @@ class SpaceRocks:
         Obj = Object if movable else StaticObject
         self.last.next = Obj(
             position = pos,
-            sprite = sprite,
-            mass = 2000)
+            radius = sqrt(self.selected_mass/100),
+            mass = self.selected_mass)
         self.last = self.last.next
         self.count += 1
+
+    def change_mass(self, value:int|float):
+        self.selected_mass += (value**5)*100
 
     def toggle_sound(self):
         '''Switch sound on/off'''
