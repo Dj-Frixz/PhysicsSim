@@ -23,7 +23,7 @@ class SpaceRocks:
         self.count = 1
         self.selected_mass = 2000
         self.settings = Settings(self.screen, self)
-#       self.SPHERE = load_sprite("sphere.png")
+        self.SPHERE = load_sprite("sphere.png")
 #       self.ENEMY = load_sprite("enemy.png")
 
     def main_loop(self):
@@ -128,6 +128,7 @@ class SpaceRocks:
 
     def change_mass(self, value:int|float):
         self.selected_mass += (value**5)*100
+        if self.selected_mass < 0: self.selected_mass = 0
 
     def toggle_sound(self):
         '''Switch sound on/off'''
