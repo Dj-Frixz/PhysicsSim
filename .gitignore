@@ -1,9 +1,9 @@
 __pycache__
 build
+.vscode
 PhysicsSim.spec
 compile.bat
 compile.py
+test.py
 assets/sprites/settings2.png
 assets/sprites/enemy.png
-.vscode
-test.py
