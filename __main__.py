@@ -1,5 +1,5 @@
-from game import SpaceRocks
+from game import Space
 
 if __name__=="__main__":
-    space_rocks = SpaceRocks()
-    space_rocks.main_loop()
+    space = Space()
+    space.main_loop()
