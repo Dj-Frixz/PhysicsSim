@@ -7,7 +7,7 @@ from models import *
 from utils import load_sprite
 from settings import Settings
 
-class SpaceRocks:
+class Space:
     def __init__(self):
         self.screen = self._init_pygame()
         self.screen_width, self.screen_height = pygame.display.get_window_size()
