@@ -16,7 +16,7 @@ class SpaceRocks:
         self.background = load_sprite("space.jpg", False)
         self.FONT = pygame.font.SysFont('monospace',int(20*(self.screen_height/1080)))
         self.version = self.FONT.render("v2.1",True,(255,255,255))
-        self.hint = self.FONT.render("Right click to spawn something, scroll to change mass",True,(255,255,255))
+        self.hint = self.FONT.render("Right click to spawn something, scroll to change mass. Use the arrows to move the spaceship.",True,(255,255,255))
         self.clock = pygame.time.Clock()
         self.main_character = MainCharacter((int(self.screen_width/2), int(self.screen_height/2)))
         self.last = self.main_character
