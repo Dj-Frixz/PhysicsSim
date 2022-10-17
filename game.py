@@ -45,7 +45,7 @@ class Space:
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3: # right click
-                    self.spawn(event.pos,self.settings.buttons['movement'].status) # ,self.settings.buttons['funny'].status)
+                    self.spawn(event.pos)
                 elif event.button == 1: # left click
                     self.settings.handle_input(event.pos)
             if event.type == pygame.MOUSEWHEEL:
@@ -114,11 +114,9 @@ class Space:
             self.last = obj
         self.count -= 1
 
-    def spawn(self,pos,movable): # ,fun):
+    def spawn(self,pos): # ,fun):
         '''Spawns a single particle'''
-        # diameter = self.screen_height/10
-        sprite =  self.SPHERE # if not fun else pygame.transform.smoothscale(self.ENEMY,(diameter,diameter))
-        Obj = Object if movable else StaticObject
+        Obj = StaticObject if self.settings.buttons['static'].status else Object
         self.last.next = Obj(
             position = pos,
             radius = sqrt(self.selected_mass/100),
@@ -133,6 +131,18 @@ class Space:
     def toggle_sound(self):
         '''Switch sound on/off'''
         Object.sound = Object.sound == False
+    
+    def toggle_gravity(self):
+        '''Switch gravity on/off'''
+        Object.gravity = Object.gravity == False
+
+    def toggle_repulsion(self):
+        '''Switch repulsion on/off'''
+        Object.repulsion = Object.repulsion == False
+
+    def toggle_bounce(self):
+        '''Switch window border elasticity on/off'''
+        Object.bounce = Object.bounce == False
 
     def clear(self):
         '''Clears every object on the screen'''

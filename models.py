@@ -6,25 +6,27 @@ from pygame.draw import circle
 from utils import load_sprite, load_sound
 
 UP = Vector2(0, -1)
-C = 299792458
+# C = 299792458
 # G = 6.6743e-11
 # GRAVITY = {'direction': Vector2(0, 1), 'acceleration': 0.2}
 
 class StaticObject:
+    bounce = True
     sound = False
+    gravity = True
+    repulsion = True
     scale = 1
 
-    def __init__(self, position, radius, mass=0, velocity=Vector2()) -> None:
+    def __init__(self, position, radius, mass=0, rect=None, velocity=Vector2()) -> None:
         self.next = None
         self.position = Vector2(position)
         self.mass = mass
-        # self.sprite = sprite
         self.color = (255,0,0)
-        # self.rect = sprite.get_bounding_rect()
         self.radius = radius  # self.rect.width / 2
         self.velocity = Vector2(velocity)
-        self.inertial_energy = mass*(C**2)
-        self.kinetic_energy =  0.5*mass*(velocity*velocity)
+        self.rect = rect
+        # self.inertial_energy = mass*(C**2)
+        # self.kinetic_energy =  0.5*mass*(velocity*velocity)
 
     def move(self,*args):
         self.velocity *= 0
@@ -37,8 +39,13 @@ class StaticObject:
             if radius!=0:
                 # velocity = acceleration*time = Force*time/mass
                 force = direction.normalize()*time/(radius**2)
-                self.velocity += force*obj.mass - force*(obj.mass**2)/(radius**2)
-                obj.velocity += -force*self.mass + force*(self.mass**2)/(radius**2)
+                if self.gravity:
+                    self.velocity += force*obj.mass
+                    obj.velocity += -force*self.mass
+                if self.repulsion:
+                    self.velocity += -force*(obj.mass**2)/(radius**2)
+                    obj.velocity += force*(self.mass**2)/(radius**2)
+                
             obj = obj.next
 
     def draw(self, screen):
@@ -48,19 +55,11 @@ class StaticObject:
 
 class Object(StaticObject):
     ELASTICITY = 0.9
-    bounce = False
 
-    def __init__(self, position, radius, mass=0, velocity=Vector2()):
+    def __init__(self, position, radius, mass=0, rect=None, velocity=Vector2()):
         self.boing = load_sound('boing')
 
-        super().__init__(position, radius, mass, velocity)
-
-    def gravity(self,obj,force):
-        '''Gravitational_force  = G*mass*mass2/radius^2'''
-        pass
-
-    def electric_field(self,obj):
-        pass
+        super().__init__(position, radius, mass, rect, velocity)
 
     def move(self,surface,wrapper:bool, time=1/60):
         if wrapper: self.window_border_collision(surface, time)
@@ -76,34 +75,34 @@ class Object(StaticObject):
         x_vel, y_vel = self.velocity                        #take position coords where (0,0)
         x_res, y_res = self.position + self.velocity*time   #is top-left of the screen
         width, height = surface.get_size()
-        offset_x, offset_y = self.radius, self.radius       #self.sprite.get_size()
-        #offset_x /= 2                                      #as the vector originates at the center of the obj
-        #offset_y /= 2                                      #this shift the collision to its edges
+        offset_x, offset_y = (self.radius, self.radius) if self.rect==None else (self.rect.w/2, self.rect.h/2)
+                                                            #as the vector originates at the center of the obj
+                                                            #this shift the collision to its edges
         width -= offset_x
         height -= offset_y
         
         if x_res <= offset_x:                               #in order: left, right, top, bottom (border checks)
             if x_res < offset_x:
                 x_res = 2 * offset_x - x_res
-                x_vel = -x_vel * self.ELASTICITY
+                x_vel = -x_vel * k_el
                 if -2 < x_vel < 2: x_res, x_vel = offset_x, 0
                 if self.sound: self.boing.play()
         elif x_res >= width:                                ##########  the formula is composed by  ###########
             if x_res > width:
                 x_res = 2 * width - x_res                   ## :: difference = resultant - offset_x          ##
-                x_vel = -x_vel * self.ELASTICITY            ##  (how much of the res vect is off the screen) ##
+                x_vel = -x_vel * k_el                       ##  (how much of the res vect is off the screen) ##
                 if -2 < x_vel < 2: x_res, x_vel = width, 0
                 if self.sound: self.boing.play()
         if y_res <= offset_y:                               ## :: sub_vect = 2 * difference                  ##
             if y_res < offset_y:
                 y_res = 2 * offset_y - y_res                ##  (double the previous difference)             ##
-                y_vel = -y_vel * self.ELASTICITY            ## :: resultant - sub_vect                       ##
+                y_vel = -y_vel * k_el                       ## :: resultant - sub_vect                       ##
                 if -2 < y_vel < 2: y_res, y_vel = offset_y, 0
                 if self.sound: self.boing.play()
         elif y_res >= height:                               ##  (finds where the reflected vect points)      ##
             if y_res > height:
                 y_res = 2 * height - y_res                  ###################################################
-                y_vel = -y_vel * self.ELASTICITY
+                y_vel = -y_vel * k_el
                 if -2 < y_vel < 2: y_res, y_vel = height, 0
                 if self.sound: self.boing.play()
         
@@ -112,21 +111,19 @@ class Object(StaticObject):
 
 class MainCharacter(Object):
     MANEUVERABILITY = 3
-    ACCELERATION = 0.2
+    ACCELERATION = 0.5
 
     def __init__(self, position):
         self.direction = Vector2(UP)
-        self.sprite = smoothscale(
-                load_sprite("main_character.png"),
-                (int(1/5*position[0]), int(1/5*position[0]))
-            )
         self.brum = load_sound('brum')
         self.enabled = True
+        self.sprite = load_sprite("spaceship.png")
 
         super().__init__(
             position,
             radius=0,
-            mass=5
+            mass=5,
+            rect=self.sprite.get_rect()
         )
     
     def clear(self):    # erase everything?
@@ -148,3 +145,4 @@ class MainCharacter(Object):
         rotated_surface_size = Vector2(rotated_surface.get_size())
         blit_position = self.position - rotated_surface_size * 0.5
         surface.blit(rotated_surface, blit_position)
+        self.rect = rotated_surface.get_rect()

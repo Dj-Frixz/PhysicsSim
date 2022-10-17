@@ -23,15 +23,17 @@ class Settings:
         check = load_sprite('check.png')
         self.buttons = {
             'wrapper': Settings._Selection(load_sprite('wrapper.png'), check), #, space_class.toggle_wrapper),
-            'movement': Settings._Selection(load_sprite('movement.png'), check),
+            'static': Settings._Selection(load_sprite('pinned.png'), check),
             'clear': Settings._Button(load_sprite('clear.png'), space_class.clear),
             'reset': Settings._Button(load_sprite('reset.png'), space_class.reset),
             'funny': Settings._Selection(load_sprite('fun.png'), check),
             'trails': Settings._Selection(load_sprite('trails.png'), check),
             'info': Settings._Selection(load_sprite('info.png'), check),
-            'bounce': Settings._Selection(load_sprite('bounce.png'), check),
+            'bounce': Settings._Selection(load_sprite('bounce.png'), check, space_class.toggle_bounce, True),
             'sound': Settings._Selection(load_sprite('sound.png'), check, space_class.toggle_sound),
-            'friction': Settings._Selection(load_sprite('friction.png'), check)
+            'friction': Settings._Selection(load_sprite('friction.png'), check),
+            'gravity': Settings._Selection(load_sprite('gravity.png'), check, space_class.toggle_gravity, True),
+            'repulsion': Settings._Selection(load_sprite('repulsion.png'), check, space_class.toggle_repulsion, True)
 #           'fullscreen': Settings._Button(self.FONT.render('fullscreeeen',True,(255,255,255)), lambda:pygame.display.toggle_fullscreen())
         }
         N = len(self.buttons)
