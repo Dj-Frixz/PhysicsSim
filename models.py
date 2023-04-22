@@ -2,6 +2,7 @@ from pickle import FALSE
 from pygame.math import Vector2
 from pygame.transform import smoothscale, rotozoom
 from pygame.draw import circle
+from numpy import floor
 
 from utils import load_sprite, load_sound
 
@@ -21,10 +22,11 @@ class StaticObject:
         self.next = None
         self.position = Vector2(position)
         self.mass = mass
-        self.color = (255,0,0)
+        self.color = (0,0,0)
         self.radius = radius  # self.rect.width / 2
         self.velocity = Vector2(velocity)
         self.rect = rect
+        self.collide = 0
         # self.inertial_energy = mass*(C**2)
         # self.kinetic_energy =  0.5*mass*(velocity*velocity)
 
@@ -34,19 +36,38 @@ class StaticObject:
     def apply_forces(self, time=1/60):
         obj = self.next
         while obj is not None:
-            direction = obj.position - self.position
-            radius = direction.length()
-            if radius!=0:
-                # velocity = acceleration*time = Force*time/mass
-                force = direction.normalize()*time/(radius**2)
-                if self.gravity:
-                    self.velocity += force*obj.mass
-                    obj.velocity += -force*self.mass
-                if self.repulsion:
-                    self.velocity += -force*(obj.mass**2)/(radius**2)
-                    obj.velocity += force*(self.mass**2)/(radius**2)
+            direction = obj.position - self.position    # (x2 - x1)
+            distance = direction.length()
+            if distance!=0:
                 
+                # velocity = acceleration*time = Force*time/mass
+                invsq_distance = 1/distance**2
+                force = direction.normalize()*time*invsq_distance
+                forces = (force*self.mass, force*obj.mass)
+                self._gravitational_force(obj,forces,distance)
+                self._repulsive_force(obj,forces,distance,invsq_distance)
+                if distance<=(self.radius+obj.radius): self.collision(obj,obj.velocity,direction,invsq_distance)
+                        
             obj = obj.next
+    
+    def _gravitational_force(self,obj,forces,radius):
+        if radius>(self.radius+obj.radius) and self.gravity:
+            self.velocity += forces[1]
+            obj.velocity += -forces[0]
+    
+    def _repulsive_force(self,obj,forces,distance,invsq_distance):
+        if (self.radius+obj.radius)/2<distance<(self.radius+obj.radius) and self.repulsion:
+            self.velocity += -forces[1]*obj.mass*(invsq_distance**3)
+            obj.velocity += forces[0]*self.mass*(invsq_distance**3)
+    
+    def collision(self,obj,v2,r,invsq_r):
+        delta_v = self.velocity - v2
+        obj.velocity = v2 - 2*self.mass/(self.mass + obj.mass) * (((-delta_v)*r) * invsq_r) * r
+        self.velocity = delta_v - 2*(delta_v*r * invsq_r)*r + obj.velocity
+
+    def collides_with(self, other_obj):
+        distance = self.position.distance_to(other_obj.position)
+        return distance < self.radius + other_obj.radius
 
     def draw(self, screen):
         # blit_position = self.position - Vector2(self.radius)
@@ -64,11 +85,9 @@ class Object(StaticObject):
     def move(self,surface,wrapper:bool, time=1/60):
         if wrapper: self.window_border_collision(surface, time)
         else: self.position += self.velocity*time*self.scale
-        self.kinetic_energy = 0.5*self.mass*(self.velocity*self.velocity)
-
-    def collides_with(self, other_obj):
-        distance = self.position.distance_to(other_obj.position)
-        return distance < self.radius + other_obj.radius
+        kinetic_energy = 0.5*self.mass*(self.velocity*self.velocity)
+        color_intensity = floor(255*(1 - 1.00001**-kinetic_energy))
+        self.color = (color_intensity,color_intensity,color_intensity)
 
     def window_border_collision(self, surface, time):       ###### COSTRAINT REACTION OF THE BORDER ######
         k_el = self.ELASTICITY if Object.bounce else 1
