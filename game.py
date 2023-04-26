@@ -90,7 +90,7 @@ class Space:
         self.settings.draw(self.screen)
         if self.settings.buttons['info'].status:
             self.screen.blit(
-                self.FONT.render(f'particles: {self.count}, res: {self.screen_width,self.screen_height}, v: {self.main_character.next.velocity,self.main_character.next.next.velocity}',True,(255,255,255)),
+                self.FONT.render(f'particles: {self.count}, res: {self.screen_width,self.screen_height}',True,(255,255,255)),
                 (0, 0.19*self.screen_height))
         self.screen.blit(
             self.FONT.render('mass: %i'%(self.selected_mass),True,(255,255,255)), 
