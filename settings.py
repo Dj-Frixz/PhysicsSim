@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
-from math import ceil
-from random import shuffle
+from math import floor,ceil
+from random import shuffle,randint
 pygame.font.init()
 
 from utils import load_sprite
@@ -37,25 +37,26 @@ class Settings:
 #           'fullscreen': Settings._Button(self.FONT.render('fullscreeeen',True,(255,255,255)), lambda:pygame.display.toggle_fullscreen())
         }
         N = len(self.buttons)
-        self.X = np.random.randint(1,8)
-        self.Y = ceil(max(3,N/self.X))
-        self.grid = np.full(self.X*self.Y, None)
-        choices = [i for i in range(self.X*self.Y)]
+        X = randint(1,7)
+        Y = ceil(max(3,N/X))
+        self.grid = np.full(X*Y, None)
+        choices = [i for i in range(X*Y)]
         shuffle(choices)
         for i,butt in zip(choices,self.buttons):
             self.grid[i] = butt
             self.buttons[butt].position(np.round(
-                (np.array( divmod(i,self.X) )+0.5) * [self.height/self.Y, self.width/self.X])
+                (np.array( divmod(i,X) )+0.5) * [self.height/Y, self.width/X])
             )
+        self.grid = np.resize(self.grid, (Y,X))
+        self.__mult = (X/self.width, Y/self.height)
 
     def handle_input(self,click_pos):
         if self.rect.collidepoint(click_pos):  #left=1780,top=15
             self.active = self.active == False
         elif self.active:
-            for butt in self.buttons:
-                if self.buttons[butt].rect.collidepoint(click_pos):
-                    self.buttons[butt].select()
-                    return
+            butt = self.grid[floor(click_pos[1]*self.__mult[1]),floor(click_pos[0]*self.__mult[0])]
+            if butt is not None:
+                self.buttons[butt].select()
 
     def draw(self,screen):
         screen.blit(self.img, self.pos)
